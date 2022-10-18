@@ -9,7 +9,11 @@ Options:
    -i FILE, --input-wav=FILE   WAVE file for voice activity detection
    -o FILE, --output-vad=FILE  Label file with the result of VAD
    -w FILE, --output-wav=FILE  WAVE file with silences cleared
+<<<<<<< HEAD
    -1 REAL, --alfa1=REAL       Increment de l'umbral 1 [default: 0]
+=======
+   -1 REAL, --alfa1=REAL       Increment del umbral 1 [default: 0]
+>>>>>>> 01bee6b453c691388c3c05ff8ce3550fffebab53
    -v, --verbose  Show debug information
    -h, --help     Show this screen
    --version      Show the version of the project

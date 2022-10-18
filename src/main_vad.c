@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
   unsigned int t, last_t; /* in frames */
 
   char	*input_wav, *output_vad, *output_wav;
+  float alfa1;
 
   DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
 
@@ -64,7 +65,11 @@ int main(int argc, char *argv[]) {
     }
   }
 
+<<<<<<< HEAD
   vad_data = vad_open(sf_info.samplerate,alfa1);
+=======
+  vad_data = vad_open(sf_info.samplerate, alfa1);
+>>>>>>> 01bee6b453c691388c3c05ff8ce3550fffebab53
   /* Allocate memory for buffers */
   frame_size   = vad_frame_size(vad_data);
   buffer       = (float *) malloc(frame_size * sizeof(float));

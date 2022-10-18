@@ -43,9 +43,13 @@ Features compute_features(const float *x, int N) {
    * For the moment, compute random value between 0 and 1 
    */
   Features feat;
+<<<<<<< HEAD
   //feat.zcr = compute_zcr(x,N,fm);
   feat.p = compute_power(x,N);
   feat.am = compute_am(x,N);
+=======
+  feat.p = compute_power(x,N);
+>>>>>>> 01bee6b453c691388c3c05ff8ce3550fffebab53
   return feat;
 }
 
@@ -53,12 +57,20 @@ Features compute_features(const float *x, int N) {
  * TODO: Init the values of vad_data
  */
 
+<<<<<<< HEAD
 VAD_DATA * vad_open(float rate,float alfa1) {
+=======
+VAD_DATA * vad_open(float rate, float alfa1) {
+>>>>>>> 01bee6b453c691388c3c05ff8ce3550fffebab53
   VAD_DATA *vad_data = malloc(sizeof(VAD_DATA));
   vad_data->state = ST_INIT;
   vad_data->sampling_rate = rate;
   vad_data->frame_length = rate * FRAME_TIME * 1e-3;
+<<<<<<< HEAD
   vad_data->alfa1=alfa1;
+=======
+  vad_data->alfa1 = alfa1;
+>>>>>>> 01bee6b453c691388c3c05ff8ce3550fffebab53
   return vad_data;
 }
 
@@ -94,6 +106,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
   switch (vad_data->state) {
   case ST_INIT:
     vad_data->state = ST_SILENCE;
+<<<<<<< HEAD
     vad_data->umbral=f.p+ vad_data->alfa1;
     break;
 
@@ -103,6 +116,19 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
 
   case ST_VOICE:
     if (f.p < vad_data->umbral) vad_data->state = ST_SILENCE;
+=======
+    vad_data->umbral = f.p + vad_data->alfa1;
+    break;
+
+  case ST_SILENCE:
+    if (f.p > vad_data->umbral)
+      vad_data->state = ST_VOICE;
+    break;
+
+  case ST_VOICE:
+    if (f.p < vad_data->umbral)
+      vad_data->state = ST_SILENCE;
+>>>>>>> 01bee6b453c691388c3c05ff8ce3550fffebab53
     break;
 
   case ST_UNDEF:
