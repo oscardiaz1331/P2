@@ -53,13 +53,19 @@ Features compute_features(const float *x, int N) {
  * TODO: Init the values of vad_data
  */
 
-VAD_DATA * vad_open(float rate,float alfa1,float alfa2) {
+VAD_DATA * vad_open(float rate,float alfa1,float alfa2, int dur_max, int dur_min_v,int dur_min_s) {
   VAD_DATA *vad_data = malloc(sizeof(VAD_DATA));
   vad_data->state = ST_INIT;
   vad_data->sampling_rate = rate;
   vad_data->frame_length = rate * FRAME_TIME * 1e-3;
   vad_data->alfa1 = alfa1;
   vad_data->alfa2 = alfa2;
+  vad_data->s=0;
+  vad_data->u=0;
+  vad_data->v=0;
+  vad_data->dur_max=dur_max;
+  vad_data->dur_min_v=dur_min_v;
+  vad_data->dur_min_s=dur_min_s;
   return vad_data;
 }
 
@@ -67,8 +73,11 @@ VAD_STATE vad_close(VAD_DATA *vad_data) {
   /* 
    * TODO: decide what to do with the last undecided frames
    */
+  //Decidimos ponerlo a silencio debido a que es lo más habitual
   VAD_STATE state = vad_data->state;
-
+  if(state==ST_UNDEF){ 
+    state=ST_SILENCE;
+  }
   free(vad_data);
   return state;
 }
@@ -100,21 +109,33 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
     break;
 
   case ST_SILENCE:
-    if (f.p > vad_data->umbral2) vad_data->state = ST_MAYBE_VOICE;
+    if (f.p > vad_data->umbral2) vad_data->state = ST_UNDEF;
+    else vad_data->s+=1;
     break;
 
   case ST_VOICE:
-    if (f.p < vad_data->umbral1) vad_data->state = ST_MAYBE_SILENCE;
+    if (f.p < vad_data->umbral1) vad_data->state = ST_UNDEF;
+    else vad_data->v+=1;
     break;
 
   case ST_UNDEF:
-    if(vad_data->state==ST_VOICE){//MAYBE VOICE
-      if(f.p>vad_data->umbral2 && ) vad_data->state=ST_VOICE; //Depende del tiempo que llevemos en el estado
-      else if() vad_data->state=ST_SILENCE;
-    }else if(vad_data->state==ST_SILENCE){ //MAYBE SILENCE
-
+    //Caso de MAYBE VOICE
+    if(f.p>vad_data->umbral1){ 
+      //Miramos si podemos confirmar VOICE
+      if(vad_data->u==vad_data->dur_max){
+        vad_data->state=ST_VOICE;
+        vad_data->u=0;
+      }
+    }else{
+    vad_data->u+=1;
+    }
+    //A continuación miramos si se sobrepasa la duración máxima
+    if(vad_data->u>vad_data->dur_max){
+      vad_data->state=ST_VOICE;
+      vad_data->u=0;
     }
     break;
+
   }
 
   if (vad_data->state == ST_SILENCE ||

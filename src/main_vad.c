@@ -19,13 +19,12 @@ int main(int argc, char *argv[]) {
   VAD_DATA *vad_data;
   VAD_STATE state, last_state;
 
-  float *buffer, *buffer_zeros, alfa1;
-  int frame_size;         /* in samples */
+  float *buffer, *buffer_zeros, alfa1,alfa2;
+  int frame_size,dur_max,dur_min_v,dur_min_s;         /* in samples */
   float frame_duration;   /* in seconds */
   unsigned int t, last_t; /* in frames */
 
   char	*input_wav, *output_vad, *output_wav;
-  float alfa1,alfa2;
 
   DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
 
@@ -35,6 +34,10 @@ int main(int argc, char *argv[]) {
   output_wav = args.output_wav;
   alfa1 = atof(args.alfa1);
   alfa2=atof(args.alfa2);
+  dur_max=atoi(args.dmax);
+  dur_min_v=atoi(args.dminv);
+  dur_min_s=atoi(args.dmins);
+
 
   if (input_wav == 0 || output_vad == 0) {
     fprintf(stderr, "%s\n", args.usage_pattern);
@@ -66,7 +69,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  vad_data = vad_open(sf_info.samplerate,alfa1,alfa2);
+  vad_data = vad_open(sf_info.samplerate,alfa1,alfa2,dur_max,dur_min_v,dur_min_s);
   /* Allocate memory for buffers */
   frame_size   = vad_frame_size(vad_data);
   buffer       = (float *) malloc(frame_size * sizeof(float));
