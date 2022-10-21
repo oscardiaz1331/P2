@@ -61,7 +61,8 @@ VAD_DATA * vad_open(float rate,float alfa1,float alfa2, int dur_max, int dur_min
   vad_data->alfa1 = alfa1;
   vad_data->alfa2 = alfa2;
   vad_data->s=0;
-  vad_data->u=0;
+  vad_data->us=0;
+  vad_data->uv=0;
   vad_data->v=0;
   vad_data->dur_max=dur_max;
   vad_data->dur_min_v=dur_min_v;
@@ -119,21 +120,42 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
     break;
 
   case ST_UNDEF:
-    //Caso de MAYBE VOICE
+    
+
     if(f.p>vad_data->umbral1){ 
+      //Caso de MAYBE VOICE
       //Miramos si podemos confirmar VOICE
-      if(vad_data->u==vad_data->dur_max){
-        vad_data->state=ST_VOICE;
-        vad_data->u=0;
+      if(f.p>vad_data->umbral2) {
+        if(vad_data->uv>vad_data->dur_min_v){
+          vad_data->state=ST_VOICE;
+          vad_data->us=0;
+          vad_data->uv=0;
+        }else{
+          vad_data->uv +=1;
+        }
       }
+      //Miramos si el tiempo se ha excedido
+      else if(vad_data->us>=vad_data->dur_min_s){
+        vad_data->state=ST_SILENCE;
+        vad_data->us=0;
+        vad_data->uv=0;
+      }
+      //Caso de MAYBE SILENCE
+
+      vad_data->us+=1;
     }else{
-    vad_data->u+=1;
+      //A continuación miramos si se sobrepasa la duración máxima
+      if(vad_data->us>=vad_data->dur_max){
+        vad_data->state=ST_SILENCE;
+        vad_data->us=0;
+        vad_data->uv=0;
+      }
+    vad_data->us+=1;
     }
-    //A continuación miramos si se sobrepasa la duración máxima
-    if(vad_data->u>vad_data->dur_max){
-      vad_data->state=ST_VOICE;
-      vad_data->u=0;
-    }
+
+
+    
+    
     break;
 
   }
