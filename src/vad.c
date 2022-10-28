@@ -14,7 +14,7 @@ const float FRAME_TIME = 10.0F; /* in ms. */
  */
 
 const char *state_str[] = {
-  "UNDEF", "S", "V", "INIT"
+  "MV", "MS", "S", "V", "INIT"
 };
 
 const char *state2str(VAD_STATE st) {
@@ -76,7 +76,7 @@ VAD_STATE vad_close(VAD_DATA *vad_data) {
    */
   //Decidimos ponerlo a silencio debido a que es lo más habitual
   VAD_STATE state = vad_data->state;
-  if(state==ST_UNDEF){ 
+  if(state==ST_MV || state==ST_MS){ 
     state=ST_SILENCE;
   }
   free(vad_data);
@@ -110,59 +110,55 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
     break;
 
   case ST_SILENCE:
-    if (f.p > vad_data->umbral2) vad_data->state = ST_UNDEF;
+    if (f.p > vad_data->umbral2) vad_data->state = ST_MV;
     else vad_data->s+=1;
     break;
 
   case ST_VOICE:
-    if (f.p < vad_data->umbral1) vad_data->state = ST_UNDEF;
+    if (f.p < vad_data->umbral1) vad_data->state = ST_MS;
     else vad_data->v+=1;
     break;
-
-  case ST_UNDEF:
-    
-
-    if(f.p>vad_data->umbral1){ 
-      //Caso de MAYBE VOICE
-      //Miramos si podemos confirmar VOICE
-      if(f.p>vad_data->umbral2) {
-        if(vad_data->uv>vad_data->dur_min_v){
-          vad_data->state=ST_VOICE;
-          vad_data->us=0;
-          vad_data->uv=0;
-        }else{
-          vad_data->uv +=1;
-        }
-      }
-      //Miramos si el tiempo se ha excedido
-      else if(vad_data->us>=vad_data->dur_min_s){
-        vad_data->state=ST_SILENCE;
-        vad_data->us=0;
-        vad_data->uv=0;
-      }
-      //Caso de MAYBE SILENCE
-
-      vad_data->us+=1;
-    }else{
-      //A continuación miramos si se sobrepasa la duración máxima
-      if(vad_data->us>=vad_data->dur_max){
-        vad_data->state=ST_SILENCE;
-        vad_data->us=0;
-        vad_data->uv=0;
-      }
-    vad_data->us+=1;
+ //Caso de MAYBE VOICE
+  case ST_MV:
+  //Miramos si es menor al umbral 1, osea, ruido/silencio.
+    if(f.p<vad_data->umbral1 || vad_data->us>=vad_data->dur_max){
+      vad_data->state=ST_SILENCE;
+      vad_data->uv=0;
+      vad_data->us=0;
     }
-
-
-    
-    
+    //Miramos si supera durante un tiempo el umbral 2, sino podemos decir que es un ruido alto puntual y no voz
+    if(f.p>vad_data->umbral2) {
+      if(vad_data->uv>vad_data->dur_min_v){  //Esta duración debe ser corta   
+        vad_data->state=ST_VOICE;
+        vad_data->uv=0;
+        vad_data->us=0;
+      }else{
+      vad_data->us+=1;
+      vad_data->uv+=1;
+      }
+    }else{
+      vad_data->uv=0;
+      vad_data->us+=1;
+    }
     break;
-
+  case ST_MS:   
+      //A continuación miramos si se sobrepasa la duración máxima
+      if(f.p>=vad_data->umbral1){ 
+        vad_data->state=ST_VOICE;
+        vad_data->us=0;
+      }else if(f.p<vad_data->umbral1 && vad_data->dur_min_s>vad_data->us){
+          vad_data->us+=1;
+      }else{
+        vad_data->state=ST_SILENCE;
+        vad_data->us=0;
+      }
+    break;
   }
-
   if (vad_data->state == ST_SILENCE ||
-      vad_data->state == ST_VOICE) return vad_data->state;
-  else return ST_UNDEF;
+      vad_data->state == ST_VOICE||
+      vad_data->state == ST_MS ||
+      vad_data->state == ST_MV) return vad_data->state;
+  else return ST_MS;
 }
 
 void vad_show_state(const VAD_DATA *vad_data, FILE *out) {
