@@ -14,13 +14,13 @@ int main(int argc, char *argv[]) {
   SNDFILE *sndfile_in, *sndfile_out = 0;
   SF_INFO sf_info;
   FILE *vadfile;
-  int n_read = 0, i;
+  int n_read = 0, i,j;
 
   VAD_DATA *vad_data;
   VAD_STATE state, last_state,last_defined_state;
 
   float *buffer, *buffer_zeros, alfa1,alfa2;
-  int frame_size,dur_max,dur_min_v,dur_min_s;         /* in samples */
+  int frame_size,dur_max,dur_min_v,dur_min_s,tramassilencio;         /* in samples */
   float frame_duration;   /* in seconds */
   unsigned int t, last_t,last_defined_t; /* in frames */
 
@@ -87,7 +87,9 @@ int main(int argc, char *argv[]) {
 
     if (sndfile_out != 0) {
       /* TODO: copy all the samples into sndfile_out */
-      fprintf(output_wav,buffer);
+      //for(j=0;j<frame_size;j++){
+      fwrite(buffer,sizeof(float),frame_size,sndfile_out);
+      //}
     }
 
     state = vad(vad_data, buffer);
@@ -99,8 +101,10 @@ int main(int argc, char *argv[]) {
       if (t != last_t){
         if((state==ST_VOICE && last_defined_state==ST_SILENCE)||(state==ST_SILENCE && last_defined_state==ST_VOICE)){
           fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_defined_t * frame_duration, last_t * frame_duration, state2str(last_defined_state));
+          if(state==ST_SILENCE) tramassilencio=last_t-last_defined_t;
           last_defined_state=state;
           last_defined_t=last_t;
+          
         }
       }
       last_state = state;
@@ -110,7 +114,10 @@ int main(int argc, char *argv[]) {
     if (sndfile_out != 0) {
       /* TODO: go back and write zeros in silence segments */
         if(state==ST_SILENCE){
-          
+         // fseek(sndfile_out,-tramassilencio,SEEK_CUR);
+          //Seek_set, t-tramassilencio
+         // fwrite(0,sizeof(float),tramassilencio,sndfile_out);
+          //fseek(sndfile_out,0,SEEK_END);
         }
     }
   }
