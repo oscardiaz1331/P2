@@ -1,4 +1,4 @@
-#include <stdio.h>
+  #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <sndfile.h>
@@ -14,13 +14,13 @@ int main(int argc, char *argv[]) {
   SNDFILE *sndfile_in, *sndfile_out = 0;
   SF_INFO sf_info;
   FILE *vadfile;
-  int n_read = 0, i,j;
+  int n_read = 0, i;
 
   VAD_DATA *vad_data;
   VAD_STATE state, last_state,last_defined_state;
 
   float *buffer, *buffer_zeros, alfa1,alfa2;
-  int frame_size,dur_max,dur_min_v,dur_min_s,tramassilencio;         /* in samples */
+  int frame_size,dur_max,dur_min_v,dur_min_s;         /* in samples */
   float frame_duration;   /* in seconds */
   unsigned int t, last_t,last_defined_t; /* in frames */
 
@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
   input_wav  = args.input_wav;
   output_vad = args.output_vad;
   output_wav = args.output_wav;
+  //Variables creadas e inicializadas.
   alfa1 = atof(args.alfa1);
   alfa2=atof(args.alfa2);
   dur_max=atoi(args.dmax);
@@ -87,9 +88,9 @@ int main(int argc, char *argv[]) {
 
     if (sndfile_out != 0) {
       /* TODO: copy all the samples into sndfile_out */
-      //for(j=0;j<frame_size;j++){
-      fwrite(buffer,sizeof(float),frame_size,sndfile_out);
-      //}
+//Escribimos la trama actual en el nuevo archivo de audio.
+      sf_seek(sndfile_out,0,SEEK_END);
+      sf_write_float(sndfile_out, buffer,frame_size);
     }
 
     state = vad(vad_data, buffer);
@@ -99,14 +100,16 @@ int main(int argc, char *argv[]) {
     /* As it is, it prints UNDEF segments but is should be merge to the proper value */
     if (state != last_state) {
       if (t != last_t){
+//Mira si el último estado de V o S ha cambiado a S o V correspondientemente.
         if((state==ST_VOICE && last_defined_state==ST_SILENCE)||(state==ST_SILENCE && last_defined_state==ST_VOICE)){
+//Escribe en el .lab el momento donde empieza el estado S o V, donde acaba y el estado S o V correspondiente.
           fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_defined_t * frame_duration, last_t * frame_duration, state2str(last_defined_state));
-          if(state==ST_SILENCE) tramassilencio=last_t-last_defined_t;
           last_defined_state=state;
           last_defined_t=last_t;
           
         }
       }
+//Cambiamos las variables a las que tocan para el siguiente estado.
       last_state = state;
       last_t = t;
     }
@@ -114,10 +117,9 @@ int main(int argc, char *argv[]) {
     if (sndfile_out != 0) {
       /* TODO: go back and write zeros in silence segments */
         if(state==ST_SILENCE){
-         // fseek(sndfile_out,-tramassilencio,SEEK_CUR);
-          //Seek_set, t-tramassilencio
-         // fwrite(0,sizeof(float),tramassilencio,sndfile_out);
-          //fseek(sndfile_out,0,SEEK_END);
+//Miramos sí es silencio, si lo es, hechamos una trama para atras el puntero de escritura y la ponemos a zero.
+          sf_seek(sndfile_out,-frame_size,SEEK_END);
+          sf_write_float(sndfile_out,buffer_zeros,frame_size);
         }
     }
   }
@@ -125,8 +127,8 @@ int main(int argc, char *argv[]) {
   state = vad_close(vad_data);
   /* TODO: what do you want to print, for last frames? */
   if (t != last_t)
+//Decimos que en el .lab escriba hasta el último ms del archivo.
     fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_defined_t * frame_duration, t * frame_duration + n_read / (float) sf_info.samplerate, state2str(state));
-
   /* clean up: free memory, close open files */
   free(buffer);
   free(buffer_zeros);

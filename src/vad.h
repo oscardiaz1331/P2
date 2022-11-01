@@ -14,7 +14,7 @@ const char *state2str(VAD_STATE st);
 typedef struct {
   VAD_STATE state;
   float sampling_rate, umbral1, umbral2, alfa1, alfa2;
-  unsigned int frame_length,s,uv,us,v,dur_max,dur_min_v,dur_min_s;
+  unsigned int frame_length,uv,us,dur_max,dur_min_v,dur_min_s;
   float last_feature; /* for debuggin purposes */
 } VAD_DATA;
 

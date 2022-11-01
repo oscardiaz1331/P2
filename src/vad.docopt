@@ -9,11 +9,11 @@ Options:
    -i FILE, --input-wav=FILE   WAVE file for voice activity detection
    -o FILE, --output-vad=FILE  Label file with the result of VAD
    -w FILE, --output-wav=FILE  WAVE file with silences cleared
-   -1 REAL, --alfa1=REAL       Increment del umbral 1 [default: 0]
-   -2 REAL, --alfa2=REAL       Increment del umbral 2 [default: 0]
-   -3 INT, --dmax INT          Asignació de la duració máxima [default: 10]
-   -4 INT, --dminv INT         Asignació de la duració mínima pels casos de veu [default: 5]
-   -5 INT, --dmins INT         Asignació de la duració mínima pels casos de silenci [default: 5]
+   -1 REAL, --alfa1=REAL       Increment del umbral 1 [default: 6.8]
+   -2 REAL, --alfa2=REAL       Increment del umbral 2 [default: 3.8]
+   -3 INT, --dmax=INT          Asignació de la duració máxima [default: 14]
+   -4 INT, --dminv=INT         Asignació de la duració mínima pels casos de veu [default: 3]
+   -5 INT, --dmins=INT         Asignació de la duració mínima pels casos de silenci [default: 9]
    -v, --verbose  Show debug information
    -h, --help     Show this screen
    --version      Show the version of the project

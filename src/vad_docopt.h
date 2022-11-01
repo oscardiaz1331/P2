@@ -41,11 +41,11 @@ const char help_message[] =
 "   -i FILE, --input-wav=FILE   WAVE file for voice activity detection\n"
 "   -o FILE, --output-vad=FILE  Label file with the result of VAD\n"
 "   -w FILE, --output-wav=FILE  WAVE file with silences cleared\n"
-"   -1 REAL, --alfa1=REAL       Increment del umbral 1 [default: 0]\n"
-"   -2 REAL, --alfa2=REAL       Increment del umbral 2 [default: 0]\n"
-"   -3 INT, --dmax INT          Asignació de la duració máxima [default: 10]\n"
-"   -4 INT, --dminv INT         Asignació de la duració mínima pels casos de veu [default: 5]\n"
-"   -5 INT, --dmins INT         Asignació de la duració mínima pels casos de silenci [default: 5]\n"
+"   -1 REAL, --alfa1=REAL       Increment del umbral 1 [default: 6.8]\n"
+"   -2 REAL, --alfa2=REAL       Increment del umbral 2 [default: 3.8]\n"
+"   -3 INT, --dmax=INT          Asignació de la duració máxima [default: 14]\n"
+"   -4 INT, --dminv=INT         Asignació de la duració mínima pels casos de veu [default: 3]\n"
+"   -5 INT, --dmins=INT         Asignació de la duració mínima pels casos de silenci [default: 9]\n"
 "   -v, --verbose  Show debug information\n"
 "   -h, --help     Show this screen\n"
 "   --version      Show the version of the project\n"
@@ -324,8 +324,8 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
-        0, 0, 0, (char*) "0", (char*) "0", (char*) "10", (char*) "5", (char*)
-        "5", NULL, NULL, NULL,
+        0, 0, 0, (char*) "6.8", (char*) "3.8", (char*) "14", (char*) "9",
+        (char*) "3", NULL, NULL, NULL,
         usage_pattern, help_message
     };
     Tokens ts;

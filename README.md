@@ -105,15 +105,17 @@ Ejercicios
   continuación, una captura de `wavesurfer` en la que se vea con claridad la señal temporal, el contorno de
   potencia y la tasa de cruces por cero, junto con el etiquetado manual de los segmentos.
 
+<img src="img/PrimeraimagenP2.png" width="640" align="center">
+
 
 - A la vista de la gráfica, indique qué valores considera adecuados para las magnitudes siguientes:
 
-	* Incremento del nivel potencia en dB, respecto al nivel correspondiente al silencio inicial, para
-	  estar seguros de que un segmento de señal se corresponde con voz.
-
+	* Incremento del nivel potencia en dB, respecto al nivel correspondiente al silencio inicial, para estar seguros de que un segmento de señal se corresponde con voz.
+		+ 12dB por encima del primer valor visible en la gráfica.
 	* Duración mínima razonable de los segmentos de voz y silencio.
-
+		+ En nuestro caso, hicimos el audio de una forma que se notase notablemente cuando era silencio y voz, lo normal sería algo más de medio segundo, aunque en nuestro caso es algo menos de un segundo.
 	* ¿Es capaz de sacar alguna conclusión a partir de la evolución de la tasa de cruces por cero?
+		+ La tasa se dispara cuando hay un fonema sordo enmedio de una palabra.
 
 
 ### Desarrollo del detector de actividad vocal
@@ -123,13 +125,14 @@ Ejercicios
 
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
   automática conseguida para el fichero grabado al efecto. 
-
+	<img src="img/SegundaimagenP2.png" width="640" align="center">
 - Explique, si existen. las discrepancias entre el etiquetado manual y la detección automática.
-
+	+ Podemos ver como nuestro programa detecta los silencios entre palabras y crea algunos silencios que realmente son voz, esto creemos que es debido a la exageración a la hora de hacer nuestro audio.
 - Evalúe los resultados sobre la base de datos `db.v4` con el script `vad_evaluation.pl` e inserte a 
-  continuación las tasas de sensibilidad (*recall*) y precisión para el conjunto de la base de datos (sólo
-  el resumen).
-
+  continuación las tasas de sensibilidad (*recall*) y precisión para el conjunto de la base de datos (sólo el resumen).
+	<img src="img/TerceraimagenP2.png" width="640" align="center">
+	+ Podemos ver como nuestro programa da mejores resultados para las tramas de voz que para las de silencio, dando respectivamente un F-score V=95.17% F-score S=92.83%
+	+ Nuestro mayor problema es el Recall del silencio, como también se puede ver en nuestro archivo de audio. Hemos considerado que los parametros asignados a las alfas y los tiempos era el óptimo para una gran serie de valores y combinaciones y este 93,991% es el mejor F-score que hemos conseguido variando estos valores. También pensamos que si pusieramos las duración en lugar de tramas enteras, si fuesen floats de tiempo, tendriamos mejores resultados. Pero pensamos que la modificación y el posible cambio tampoco harían aumentar mucho nuestra F-score y por falta de tiempo hemos abandonado esa idea.
 
 ### Trabajos de ampliación
 
@@ -138,20 +141,22 @@ Ejercicios
 - Si ha desarrollado el algoritmo para la cancelación de los segmentos de silencio, inserte una gráfica en
   la que se vea con claridad la señal antes y después de la cancelación (puede que `wavesurfer` no sea la
   mejor opción para esto, ya que no es capaz de visualizar varias señales al mismo tiempo).
+<img src="img/CuartaimagenP2.png" width="640" align="center">
 
 #### Gestión de las opciones del programa usando `docopt_c`
 
 - Si ha usado `docopt_c` para realizar la gestión de las opciones y argumentos del programa `vad`, inserte
   una captura de pantalla en la que se vea el mensaje de ayuda del programa.
-
+<img src="img/QuintaimagenP2.png" width="640" align="center">
 
 ### Contribuciones adicionales y/o comentarios acerca de la práctica
 
-- Indique a continuación si ha realizado algún tipo de aportación suplementaria (algoritmos de detección o 
-  parámetros alternativos, etc.).
-
+- Indique a continuación si ha realizado algún tipo de aportación suplementaria (algoritmos de detección o parámetros alternativos, etc.).
+	+ Hemos añadido un tiempo que la señal debe estar por encima del umbral2 para ser representada como voz, no sabemos si esto se pedía o no, nosotros entendimos que si pero no vimos ningun lugar donde lo pusiera explicitamente.
 - Si lo desea, puede realizar también algún comentario acerca de la realización de la práctica que
   considere de interés de cara a su evaluación.
+	+ Te lo comentaremos el jueves durante la clase, pero si observas tanto en el GitHub como en el correo electrónico, Esther no ha realizado ningun push o pull ya que, antes de la clase del pasado lunes, le robaron el ordenador en la biblioteca (por eso no asistió a clase). 
+	+ Hemos realizado la mayoría de la práctica durante la semana en la biblioteca, pero al no tener ella ordenador, no ha podido hacer push ni pulls y hemos realizado el trabajo uno alado del otro con un solo ordenador.
 
 
 ### Antes de entregar la práctica

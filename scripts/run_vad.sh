@@ -22,12 +22,13 @@ for filewav in $DB/*/*wav; do
     fi
 
     filevad=${filewav/.wav/.vad}
-
-    $CMD -i $filewav -o $filevad || exit 1
+#Comentamos esta linea para hacer el ampliable
+    #$CMD -i $filewav -o $filevad || exit 1
 
 # Alternatively, uncomment to create output wave files
- #   filewavOut=${filewav/.wav/.vad.wav}
-#    $CMD $filewav $filevad $filewavOut || exit 1
+   filewavOut=${filewav/.wav/.vad.wav}
+#Modificamos esta linea para que cree los ficheros .wav con las zonas de silencio a 0.
+   $CMD -i $filewav -o $filevad -w $filewavOut || exit 1
 
 done
 
